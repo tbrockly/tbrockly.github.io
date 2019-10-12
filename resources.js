@@ -4,6 +4,7 @@ import { loc } from './locale.js';
 
 export const resource_values = {
     Food: 5,
+    Chocolate: 5,
     Lumber: 5,
     Stone: 5,
     Furs: 8,
@@ -34,6 +35,7 @@ export const resource_values = {
 
 export const tradeRatio = {
     Food: 2,
+	Chocolate: 2,
     Lumber: 2,
     Stone: 2,
     Furs: 1,
@@ -62,6 +64,7 @@ export const tradeRatio = {
 
 export const atomic_mass = {
     Food: { mass: 43.557, size: 10 },
+    Chocolate: { mass: 43.557, size: 10 },
     Lumber: { mass: 582.5951, size: 76 },
     Stone: { mass: 100.0869, size: 5 },
     Furs: { mass: 26.0174, size: 2 },
@@ -176,6 +179,7 @@ export function defineResources(){
         loadResource('Crates',0,0,false,false,'warning');
         loadResource('Containers',0,0,false,false,'warning');
         loadResource('Food',250,1,true,true);
+        loadResource('Chocolate',250,1,true,true);
         loadResource('Lumber',200,1,true,true);
         loadResource('Stone',200,1,true,true);
         loadResource('Furs',100,1,true,true);
@@ -293,7 +297,7 @@ function loadResource(name,max,rate,tradable,stackable,color){
     else if (max !== -1){
         res_container.append($('<span></span>'));
     }
-    
+
     if (rate !== 0){
         res_container.append($(`<span id="inc${name}" class="diff" :aria-label="resRate('${name}')">{{ diff | diffSize }} /s</span>`));
     }
@@ -310,15 +314,15 @@ function loadResource(name,max,rate,tradable,stackable,color){
     else {
         res_container.append($(`<span></span>`));
     }
-    
+
     $('#resources').append(res_container);
 
     var modal = {
             template: '<div id="modalBox" class="modalBox"></div>'
         };
-    
+
     vues[`res_${name}`] = new Vue({
-        data: global['resource'][name], 
+        data: global['resource'][name],
         filters: {
             size: function (value){
                 return sizeApproximation(value,0);
@@ -340,7 +344,7 @@ function loadResource(name,max,rate,tradable,stackable,color){
                     parent: this,
                     component: modal
                 });
-                
+
                 var checkExist = setInterval(function(){
                    if ($('#modalBox').length > 0) {
                       clearInterval(checkExist);
@@ -468,7 +472,7 @@ function loadSpecialResource(name,color) {
     }
     color = color || 'special';
     let bind = name;
-    
+
     if (name === 'AntiPlasmid'){
         var res_container = $(`<div id="res${name}" class="resource" v-show="anti"><span class="res has-text-${color}">${loc(`resource_${name}_name`)}</span><span class="count">{{ anti }}</span></div>`);
         $('#resources').append(res_container);
@@ -478,7 +482,7 @@ function loadSpecialResource(name,color) {
         var res_container = $(`<div id="res${name}" class="resource" v-show="count"><span class="res has-text-${color}">${loc(`resource_${name}_name`)}</span><span class="count">{{ count }}</span></div>`);
         $('#resources').append(res_container);
     }
-    
+
     vues[`res_${name}`] = new Vue({
         data: global.race[bind]
     });
@@ -493,7 +497,7 @@ function marketItem(vue,mount,market_item,name,color,full){
     if (!global.race['no_trade']){
         market_item.append($(`<span class="buy"><span class="has-text-success">${loc('resource_market_buy')}</span></span>`));
         market_item.append($(`<span role="button" class="order" @click="purchase('${name}')">\${{ r.value | buy }}</span>`));
-        
+
         market_item.append($(`<span class="sell"><span class="has-text-danger">${loc('resource_market_sell')}</span></span>`));
         market_item.append($(`<span role="button" class="order" @click="sell('${name}')">\${{ r.value | sell }}</span>`));
     }
@@ -506,9 +510,9 @@ function marketItem(vue,mount,market_item,name,color,full){
         trade.append($(`<b-tooltip :label="aSell('${name}')" position="is-bottom" size="is-small" multilined animated><span role="button" aria-label="export ${name}" class="add has-text-danger" @click="autoSell('${name}')"><span>-</span></span></b-tooltip>`));
         tradeRouteColor(name);
     }
-    
+
     vues[vue] = new Vue({
-        data: { 
+        data: {
             r: global.resource[name],
             m: global.city.market
         },
@@ -529,12 +533,12 @@ function marketItem(vue,mount,market_item,name,color,full){
                     let value = global.race['arrogant'] ? Math.round(global.resource[res].value * 1.1) : global.resource[res].value;
                     if (global.race['conniving']){
                         value *= 0.95;
-                    } 
+                    }
                     var price = Math.round(value * qty);
                     if (global.resource.Money.amount >= price){
                         global.resource[res].amount += qty;
                         global.resource.Money.amount -= price;
-                        
+
                         global.resource[res].value += Number((qty / Math.rand(1000,10000)).toFixed(2));
                     }
                 }
@@ -546,11 +550,11 @@ function marketItem(vue,mount,market_item,name,color,full){
                         let divide = global.race['merchant'] ? 3 : (global.race['asymmetrical'] ? 5 : 4);
                         if (global.race['conniving']){
                             divide -= 0.5;
-                        } 
+                        }
                         let price = Math.round(global.resource[res].value * qty / divide);
                         global.resource[res].amount -= qty;
                         global.resource.Money.amount += price;
-                        
+
                         global.resource[res].value -= Number((qty / Math.rand(1000,10000)).toFixed(2));
                         if (global.resource[res].value < Number(resource_values[res] / 2)){
                             global.resource[res].value = Number(resource_values[res] / 2);
@@ -732,7 +736,7 @@ export function tradeSellPrice(res){
         divide--;
     }
     let price = Math.round(global.resource[res].value * tradeRatio[res] / divide);
-    
+
     if (global.city['wharf']){
         price = Math.round(price * (1 + (global.city['wharf'].count * 0.01)));
     }
@@ -746,7 +750,7 @@ export function tradeBuyPrice(res){
     let rate = global.race['arrogant'] ? Math.round(global.resource[res].value * 1.1) : global.resource[res].value;
     if (global.race['conniving']){
         rate *= 0.9;
-    }    
+    }
     let price = Math.round(rate * tradeRatio[res]);
 
     if (global.city['wharf']){
@@ -760,7 +764,7 @@ export function tradeBuyPrice(res){
 
 function breakdownPopover(id,name,type){
     $(`#${id}`).on('mouseover',function(){
-        
+
         var popper = $(`<div id="resBreak${id}" class="popper breakdown has-background-light has-text-dark"></div>`);
         $('#main').append(popper);
         let bd = $(`<div class="resBreakdown"><div class="has-text-info">{{ res.name | namespace }}</div></div>`);
@@ -820,7 +824,7 @@ function breakdownPopover(id,name,type){
                 [name]: breakdown[type][name],
                 'consume': breakdown[type]['consume'],
                 res: global['resource'][name]
-            }, 
+            },
             filters: {
                 translate(raw){
                     let type = raw[raw.length -1];
@@ -852,7 +856,7 @@ function breakdownPopover(id,name,type){
                     if (time === Infinity || Number.isNaN(time)){
                         return 'Never';
                     }
-                    
+
                     if (time > 60){
                         let secs = time % 60;
                         let mins = (time - secs) / 60;
@@ -969,12 +973,12 @@ function buildContainer(){
 
 function drawModal(name,color){
     $('#modalBox').append($('<p id="modalBoxTitle" class="has-text-warning modalTitle">{{ name }} - {{ amount | size }}/{{ max | size }}</p>'));
-    
+
     let body = $('<div class="modalBody crateModal"></div>');
     $('#modalBox').append(body);
-    
+
     vues['modalCrates'] = new Vue({
-        data: { 
+        data: {
             crates: global['resource']['Crates'],
             res: global['resource'][name],
         },
@@ -1001,25 +1005,25 @@ function drawModal(name,color){
             }
         }
     });
-    
+
     let crates = $('<div id="modalCrates" class="crates"></div>');
     body.append(crates);
-    
+
     crates.append($(`<div class="crateHead"><span>${loc('resource_modal_crate_owned')} {{ crates.amount }}/{{ crates.max }}</span><span>${loc('resource_modal_crate_assigned')} {{ res.crates }}</span></div>`));
-    
+
     let buildCr = $(`<b-tooltip :label="buildCrateLabel()" position="is-bottom" animated><button class="button" @click="buildCrate()">${loc('resource_modal_crate_construct')}</button></b-tooltip>`);
     let removeCr = $(`<b-tooltip :label="removeCrateLabel()" position="is-bottom" animated><button class="button" @click="subCrate('${name}')">${loc('resource_modal_crate_unassign')}</button></b-tooltip>`);
     let addCr = $(`<b-tooltip :label="addCrateLabel()" position="is-bottom" animated><button class="button" @click="addCrate('${name}')">${loc('resource_modal_crate_assign')}</button></b-tooltip>`);
-    
+
     crates.append(buildCr);
     crates.append(removeCr);
     crates.append(addCr);
-    
+
     vues['modalCrates'].$mount('#modalCrates');
-    
+
     if (global.city['warehouse'] && global.city['warehouse'].count > 0){
         vues['modalContainer'] = new Vue({
-            data: { 
+            data: {
                 containers: global['resource']['Containers'],
                 res: global['resource'][name],
             },
@@ -1046,27 +1050,27 @@ function drawModal(name,color){
                 }
             }
         });
-        
+
         let containers = $('<div id="modalContainers" class="crates divide"></div>');
         body.append(containers);
-        
+
         containers.append($(`<div class="crateHead"><span>${loc('resource_modal_container_owned')} {{ containers.amount }}/{{ containers.max }}</span><span>${loc('resource_modal_container_assigned')} {{ res.containers }}</span></div>`));
-        
+
         let position = global.race['terrifying'] ? 'is-top' : 'is-bottom';
 
         let buildCon = $(`<b-tooltip :label="buildContainerLabel()" position="${position}" animated><button class="button" @click="buildContainer()">${loc('resource_modal_container_construct')}</button></b-tooltip>`);
         let removeCon = $(`<b-tooltip :label="removeContainerLabel()" position="${position}" animated><button class="button" @click="removeContainer('${name}')">${loc('resource_modal_container_unassign')}</button></b-tooltip>`);
         let addCon = $(`<b-tooltip :label="addContainerLabel()" position="${position}" animated><button class="button" @click="addContainer('${name}')">${loc('resource_modal_container_assign')}</button></b-tooltip>`);
-        
+
         containers.append(buildCon);
         containers.append(removeCon);
         containers.append(addCon);
-        
+
         vues['modalContainer'].$mount('#modalContainers');
     }
 
     vues[`modal_res_${name}`] = new Vue({
-        data: global['resource'][name], 
+        data: global['resource'][name],
         filters: {
             size: function (value){
                 return sizeApproximation(value,0);
@@ -1120,7 +1124,7 @@ export function initStorage(){
     let store = $(`<div id="createHead" class="storage-header"><h2 class="is-sr-only">${loc('tab_storage')}</h2></div>`);
     $('#resStorage').empty();
     $('#resStorage').append(store);
-    
+
     if (global.resource['Crates'] && global.resource['Containers']){
         store.append($(`<b-tooltip :label="buildCrateLabel()" position="is-bottom" class="crate" animated><button :aria-label="buildCrateLabel()" v-show="cr.display" class="button" @click="crate">${loc('resource_modal_crate_construct')}</button></b-tooltip>`));
         store.append($(`<b-tooltip :label="buildContainerLabel()" position="is-bottom" class="container" animated><button :aria-label="buildContainerLabel()" v-show="cn.display" class="button" @click="container">${loc('resource_modal_container_construct')}</button></b-tooltip>`));
@@ -1288,14 +1292,14 @@ export function spatialReasoning(value){
 
 export function plasmidBonus(type){
     let standard = 0;
-    let anti = 0;    
+    let anti = 0;
     if (global.race.universe !== 'antimatter' || global.genes['bleed']){
         let plasmids = global.race['no_plasmid'] ? global.race.mutation : global.race.Plasmid.count;
         if (plasmids > global.race.Plasmid.count){
             plasmids = global.race.Plasmid.count;
         }
         if (global.race['decayed']){
-            plasmids -= Math.round((global.stats.days - global.race.decayed) / (300 + global.race.gene_fortify * 25)); 
+            plasmids -= Math.round((global.stats.days - global.race.decayed) / (300 + global.race.gene_fortify * 25));
         }
         if (global.race.universe === 'antimatter' && global.genes['bleed']){
             plasmids *= 0.025
@@ -1328,7 +1332,7 @@ export function plasmidBonus(type){
             plasmids *= 0.25
         }
         if (global.race['decayed']){
-            plasmids -= Math.round((global.stats.days - global.race.decayed) / (300 + global.race.gene_fortify * 25)); 
+            plasmids -= Math.round((global.stats.days - global.race.decayed) / (300 + global.race.gene_fortify * 25));
         }
         let p_cap = 250 + global.race.Phage.count;
         if (plasmids > p_cap){

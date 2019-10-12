@@ -2185,11 +2185,7 @@ export const actions = {
                     return true;
                 }
                 return false;
-<<<<<<< HEAD
             }
-=======
-            },
->>>>>>> 53e18d2779320c60a427f1dbe0f28185cdbd7ff3
         },
         mill: {
             id: 'city-mill',
